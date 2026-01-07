@@ -17,13 +17,20 @@
     *   Network connectivity between containers (Docker DNS).
 
 ## 2. 📋 Checklist
-- [ ] **Step 1: Infrastructure Setup** (Docker Compose for DBs & Keycloak)
-- [ ] **Step 2: Dependency Injection & DevSecOps** (Update POMs)
-- [ ] **Step 3: Service Configuration** (Connect to DBs)
-- [ ] **Step 4: Product Service Implementation** (Core CRUD)
-- [ ] **Step 5: Order Service Implementation** (Logic + Feign Client)
-- [ ] **Step 6: Frontend Integration** (Real Data)
-- [ ] **Step 7: Containerization** (Dockerfiles for Apps)
+- [x] **Step 1: Infrastructure Setup** (Docker Compose for DBs & Keycloak)
+  *   Status: ✅ Implemented in `docker-compose.yml`. Containers running on ports 5434, 5435, 8080, 5050.
+- [x] **Step 2: Dependency Injection & DevSecOps** (Update POMs)
+  *   Status: ✅ Implemented. Dependencies added. OWASP plugin configured (skipped execution due to NVD API downtime).
+- [x] **Step 3: Service Configuration** (Connect to DBs)
+  *   Status: ✅ Implemented. Configured DB connection. Fixed version incompatibility by downgrading Boot to 3.4.1.
+- [x] **Step 4: Product Service Implementation** (Core CRUD)
+  *   Status: ✅ Implemented. Entity, Repo, Controller, Security (Role Mapping) added.
+- [x] **Step 5: Order Service Implementation** (Logic + Feign Client)
+  *   Status: ✅ Implemented. Order Entity/Repo, Feign Client with Token Propagation, Controller logic.
+- [x] **Step 6: Frontend Integration** (Real Data)
+  *   Status: ✅ Implemented. React App updated to fetch/display products and orders.
+- [x] **Step 7: Containerization** (Dockerfiles for Apps)
+  *   Status: ✅ Implemented. Dockerfiles created for all services and React app. `docker-compose.yml` updated to orchestrate the full stack.
 - [ ] **Verification** (Full End-to-End Test)
 
 ## 3. 📝 Step-by-Step Implementation Details
@@ -61,7 +68,7 @@
 *   **Action:**
     *   **Files:** `product-service/src/main/resources/application.yml`, `order-service/src/main/resources/application.yml`.
     *   **Config:**
-        *   `spring.datasource.url`: `jdbc:postgresql://localhost:5432/product-db` (adjust ports).
+        *   `spring.datasource.url`: `jdbc:postgresql://localhost:5434/product-db` (Product) and `...:5435/order-db` (Order).
         *   `spring.datasource.username/password`.
         *   `spring.jpa.hibernate.ddl-auto`: `update`.
         *   `logging.pattern.level`: Include `%X{user_id}` for traceability.

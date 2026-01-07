@@ -39,6 +39,67 @@ services:
     networks:
       - microservices-net
 
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-product:5432/product-db
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/microservices-realm
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/microservices-realm/protocol/openid-connect/certs
+    depends_on:
+      - postgres-product
+      - keycloak
+    networks:
+      - microservices-net
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-order:5432/order-db
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/microservices-realm
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/microservices-realm/protocol/openid-connect/certs
+      - PRODUCT_SERVICE_URL=http://product-service:8081
+    depends_on:
+      - postgres-order
+      - keycloak
+      - product-service
+    networks:
+      - microservices-net
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_CLOUD_GATEWAY_ROUTES_0_ID=product-service
+      - SPRING_CLOUD_GATEWAY_ROUTES_0_URI=http://product-service:8081
+      - SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0=Path=/products/**
+      - SPRING_CLOUD_GATEWAY_ROUTES_1_ID=order-service
+      - SPRING_CLOUD_GATEWAY_ROUTES_1_URI=http://order-service:8082
+      - SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0=Path=/orders/**
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/microservices-realm
+    depends_on:
+      - product-service
+      - order-service
+    networks:
+      - microservices-net
+
+  react-app:
+    build: ./react-app
+    container_name: react-app
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+    networks:
+      - microservices-net
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
