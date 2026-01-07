@@ -1,0 +1,62 @@
+services:
+  postgres-product:
+    image: postgres:15-alpine
+    container_name: postgres-product
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=product-db
+    volumes:
+      - postgres-product-data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  postgres-order:
+    image: postgres:15-alpine
+    container_name: postgres-order
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=order-db
+    volumes:
+      - postgres-order-data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.7
+    container_name: keycloak
+    command: start-dev
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    networks:
+      - microservices-net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - postgres-product
+      - postgres-order
+    networks:
+      - microservices-net
+
+networks:
+  microservices-net:
+    driver: bridge
+
+volumes:
+  postgres-product-data:
+  postgres-order-data:
