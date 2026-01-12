@@ -20,11 +20,9 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: |
-          mvn clean package -DskipTests
-          # Building all services
-          cd product-service && mvn clean package -DskipTests && cd ..
-          cd order-service && mvn clean package -DskipTests && cd ..
-          cd gateway && mvn clean package -DskipTests && cd ..
+          mvn -f product-service/pom.xml clean package -DskipTests
+          mvn -f order-service/pom.xml clean package -DskipTests
+          mvn -f gateway/pom.xml clean package -DskipTests
 
   sca-owasp:
     name: SCA (OWASP Dependency Check)
@@ -39,7 +37,9 @@ jobs:
           distribution: 'temurin'
       - name: Run OWASP Dependency Check
         run: |
-          mvn org.owasp:dependency-check-maven:check -DskipTests || true
+          mvn -f product-service/pom.xml org.owasp:dependency-check-maven:check -DskipTests || true
+          mvn -f order-service/pom.xml org.owasp:dependency-check-maven:check -DskipTests || true
+          mvn -f gateway/pom.xml org.owasp:dependency-check-maven:check -DskipTests || true
         # We use || true to prevent pipeline failure if vulnerabilities are found, 
         # allowing us to see the report as an artifact first.
       - name: Upload Report
@@ -79,8 +79,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           # Note: This requires SONAR_TOKEN to be set in GitHub Secrets
-          # For academic demo, we assume the command structure
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=microservices-project || echo "SonarQube Token missing"
+          # Running analysis for each service
+          mvn -f product-service/pom.xml -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=microservices-product || echo "SonarQube Token missing or skipped"
+          mvn -f order-service/pom.xml -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=microservices-order || echo "SonarQube Token missing or skipped"
+          mvn -f gateway/pom.xml -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=microservices-gateway || echo "SonarQube Token missing or skipped"
 
   container-scan:
     name: Container Scan (Trivy)
