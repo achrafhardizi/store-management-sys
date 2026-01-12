@@ -31,6 +31,9 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
     public Product saveProduct(@RequestBody Product product) {
+        if (product.getId() == null) {
+            product.setId(java.util.UUID.randomUUID().toString());
+        }
         return productRepository.save(product);
     }
 

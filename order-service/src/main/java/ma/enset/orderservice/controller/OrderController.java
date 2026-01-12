@@ -26,7 +26,7 @@ public class OrderController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('CLIENT')")
+    @PreAuthorize("hasAuthority('USER')")
     public List<Order> getOrders(Authentication authentication) {
         // In a real app, filter by authentication.getName() (customerId)
         // For now, returning all for demo or filter if filtering logic existed in Repo
@@ -36,13 +36,13 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('CLIENT', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public Order getOrder(@PathVariable String id) {
         return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('CLIENT')")
+    @PreAuthorize("hasAuthority('USER')")
     public Order createOrder(@RequestBody OrderRequest orderRequest, Authentication authentication) {
         Product product = productRestClient.getProductById(orderRequest.getProductId());
         if (product.getQuantity() < orderRequest.getQuantity()) {

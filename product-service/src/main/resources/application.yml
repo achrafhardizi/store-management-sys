@@ -20,8 +20,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/microservices-realm
-          jwk-set-uri: http://localhost:8080/realms/microservices-realm/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8080/realms/sdia-realm
+          jwk-set-uri: http://localhost:8080/realms/sdia-realm/protocol/openid-connect/certs
 
 logging:
   pattern:
